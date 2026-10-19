@@ -50,7 +50,7 @@ def split_sentences(text):
 
 
 def create_app(cfg=None):
-    from fastapi import FastAPI, File, Form, Header, HTTPException, UploadFile
+    from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, UploadFile
     from fastapi.responses import JSONResponse, StreamingResponse
 
     cfg = cfg or Config()
@@ -77,7 +77,7 @@ def create_app(cfg=None):
             ).astype(np.float32)
         return x
 
-    @app.post("/v1/audio/transcriptions", dependencies=[__import__("fastapi").Depends(check_auth)])
+    @app.post("/v1/audio/transcriptions", dependencies=[Depends(check_auth)])
     async def transcriptions(
         file: UploadFile = File(...),
         model: str = Form("josie"),
@@ -111,7 +111,7 @@ def create_app(cfg=None):
         return StreamingResponse(gen(), media_type="text/event-stream",
                                  headers={"Cache-Control": "no-cache"})
 
-    @app.post("/v1/audio/speech", dependencies=[__import__("fastapi").Depends(check_auth)])
+    @app.post("/v1/audio/speech", dependencies=[Depends(check_auth)])
     async def speech(body: dict):
         text, fmt = clean_for_tts(body.get("input", "")), body.get("response_format", "pcm")
         if not text:
@@ -134,7 +134,7 @@ def create_app(cfg=None):
                      "Cache-Control": "no-store"},
         )
 
-    @app.get("/health", dependencies=[__import__("fastapi").Depends(check_auth)])
+    @app.get("/health", dependencies=[Depends(check_auth)])
     async def health():
         return {"asr": getattr(asr, "name", "?"), "tts": tts.name}
 
