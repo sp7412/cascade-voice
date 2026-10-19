@@ -99,3 +99,74 @@ def test_http_api_bearer_auth_and_audio_helpers():
     header = wav_header(24000)
     assert header[:4] == b"RIFF" and header[8:12] == b"WAVE"
     assert len(header) == 44
+
+
+def test_tool_registry_rejects_invalid_arguments_before_execution():
+    async def go():
+        reg = ToolRegistry()
+        calls = []
+
+        @reg.register("echo", "Echo a bounded string.", {"value": {"type": "string", "maxLength": 4}}, ["value"])
+        async def echo(value):
+            calls.append(value)
+            return value
+
+        invalid = [
+            ToolCall("1", "echo", {"value": "ok", "extra": "not allowed"}),
+            ToolCall("2", "echo", {"value": 12}),
+            ToolCall("3", "echo", {}),
+            ToolCall("4", "echo", {"value": "too long"}),
+        ]
+        results = await reg.run_calls(invalid, asyncio.Event())
+        assert len(results) == 4
+        assert calls == []
+        assert all("error: bad arguments:" in output for _, output in results)
+
+        valid = await reg.run_calls([ToolCall("5", "echo", {"value": "ok"})], asyncio.Event())
+        assert valid[0][1] == "ok"
+        assert calls == ["ok"]
+
+    asyncio.run(go())
+
+
+def test_python_tool_is_opt_in(monkeypatch, tmp_path):
+    from josie.tools import builtin_tools
+
+    monkeypatch.delenv("JOSIE_ENABLE_PYTHON_TOOL", raising=False)
+    reg = builtin_tools(ToolRegistry(), workspace=str(tmp_path))
+    assert "run_python" not in reg.tools
+
+
+def test_http_api_auth_and_input_validation(monkeypatch):
+    pytest = __import__("pytest")
+    pytest.importorskip("fastapi")
+    pytest.importorskip("multipart")
+    from fastapi.testclient import TestClient
+    import josie.server as server
+
+    class FakeASR:
+        name = "fake-asr"
+        def transcribe(self, audio):
+            return "recognized speech"
+
+    class FakeTTS:
+        name = "fake-tts"
+        sample_rate = 24000
+        def synth(self, text):
+            return np.zeros(240, dtype=np.float32)
+
+    monkeypatch.setattr(server, "make_asr", lambda cfg: FakeASR())
+    monkeypatch.setattr(server, "make_tts", lambda cfg: FakeTTS())
+    monkeypatch.setenv("JOSIE_API_KEY", "test-secret")
+    client = TestClient(server.create_app())
+
+    assert client.get("/health").status_code == 401
+    assert client.get("/health", headers={"Authorization": "Bearer wrong"}).status_code == 401
+    assert client.get("/health", headers={"Authorization": "Bearer test-secret"}).json() == {
+        "asr": "fake-asr", "tts": "fake-tts"
+    }
+    headers = {"Authorization": "Bearer test-secret"}
+    assert client.post("/v1/audio/speech", headers=headers,
+                       json={"input": "hello", "response_format": "unsupported"}).status_code == 400
+    assert client.post("/v1/audio/speech", headers=headers,
+                       json={"input": "x" * 20001}).status_code == 413
