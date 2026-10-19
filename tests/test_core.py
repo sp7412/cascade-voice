@@ -172,3 +172,22 @@ def test_http_api_auth_and_input_validation(monkeypatch):
                        json={"input": "x" * 20001}).status_code == 413
     assert client.post("/v1/audio/speech", headers=headers,
                        json={"input": {"unexpected": "object"}}).status_code == 422
+
+
+def test_subprocess_is_cleaned_up_on_cancellation():
+    import sys
+    from josie.tools import _sh
+
+    async def go():
+        task = asyncio.create_task(
+            _sh(sys.executable, "-c", "import time; time.sleep(5)", timeout=10)
+        )
+        await asyncio.sleep(0.05)
+        task.cancel()
+        try:
+            await task
+            assert False, "cancelled subprocess should propagate cancellation"
+        except asyncio.CancelledError:
+            pass
+
+    asyncio.run(go())
