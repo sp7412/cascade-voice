@@ -91,7 +91,7 @@ def test_http_api_bearer_auth_and_audio_helpers():
     assert not authorized("secret", "Bearer wrong")
     assert not authorized("secret", "Basic secret")
     assert pcm16(np.array([0.0, 1.0, -1.0], dtype=np.float32)) == (
-        b"\\x00\\x00\\xff\\x7f\\x01\\x80"
+        bytes([0, 0, 255, 127, 1, 128])
     )
     assert split_sentences("Hello there. How are you?") == [
         "Hello there.", "How are you?"
