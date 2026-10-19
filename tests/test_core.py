@@ -80,3 +80,22 @@ def test_tools_parallel_deadline_cancel():
         except asyncio.CancelledError:
             pass
     asyncio.run(go())
+
+
+def test_http_api_bearer_auth_and_audio_helpers():
+    from josie.server import authorized, pcm16, split_sentences, wav_header
+
+    assert authorized("", None)  # Loopback-only mode is allowed without a key.
+    assert authorized("secret", "Bearer secret")
+    assert not authorized("secret", None)
+    assert not authorized("secret", "Bearer wrong")
+    assert not authorized("secret", "Basic secret")
+    assert pcm16(np.array([0.0, 1.0, -1.0], dtype=np.float32)) == (
+        b"\\x00\\x00\\xff\\x7f\\x01\\x80"
+    )
+    assert split_sentences("Hello there. How are you?") == [
+        "Hello there.", "How are you?"
+    ]
+    header = wav_header(24000)
+    assert header[:4] == b"RIFF" and header[8:12] == b"WAVE"
+    assert len(header) == 44
