@@ -77,6 +77,17 @@ def main():
     if a.cmd == "models":
         return models()
     if a.cmd == "serve":
+        import ipaddress
+        host = a.host.strip("[]")
+        is_loopback = host.lower() == "localhost"
+        try:
+            is_loopback = is_loopback or ipaddress.ip_address(host).is_loopback
+        except ValueError:
+            pass
+        if not is_loopback and not os.getenv("JOSIE_API_KEY"):
+            raise SystemExit(
+                "Refusing non-loopback bind without JOSIE_API_KEY. Set a strong key first."
+            )
         import uvicorn
         from .server import create_app
         return uvicorn.run(create_app(), host=a.host, port=a.port)
