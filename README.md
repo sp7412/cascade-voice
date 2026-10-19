@@ -42,7 +42,7 @@ project configuration and CLI help for supported extras and model setup.
 - Treat model output and tool arguments as untrusted input.
 - Keep API credentials in environment variables; do not commit secrets.
 - Bind any HTTP service to localhost by default. Before exposing it to a network,
-  add authentication, request-size limits, rate limits, and TLS at the edge.
+  configure `JOSIE_API_KEY`, request-size limits, rate limits, and TLS at the edge.
 - Validate real-time audio behavior with headphones and test echo/barge-in scenarios.
 - Measure turn-end-to-first-audio latency, interruption latency, tool timeout behavior,
   and transcript/playback consistency on target hardware.
