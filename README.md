@@ -19,7 +19,11 @@ Treat this as an experimental prototype, not a production-ready voice service.
 Model identifiers, optional backend APIs, audio-device behavior, and end-to-end
 latency must be verified on the target hardware before relying on them.
 
-## Whitepaper\n\nThe engineering whitepaper is in [`docs/whitepaper/`](docs/whitepaper/README.md). It covers architecture, turn lifecycle, security boundaries, failure diagnosis, evaluation metrics, and production-readiness gates.\n\n## Development
+## Whitepaper
+
+The engineering whitepaper is in [`docs/whitepaper/`](docs/whitepaper/README.md). It covers architecture, turn lifecycle, security boundaries, failure diagnosis, evaluation metrics, and production-readiness gates.
+
+## Development
 
 Python 3.10+ is declared by the package. A local install may require platform-specific
 audio and ML dependencies.
@@ -42,7 +46,7 @@ project configuration and CLI help for supported extras and model setup.
 - Treat model output and tool arguments as untrusted input.
 - Keep API credentials in environment variables; do not commit secrets.
 - Bind any HTTP service to localhost by default. Before exposing it to a network,
-  add authentication, request-size limits, rate limits, and TLS at the edge.
+  configure `JOSIE_API_KEY`, request-size limits, rate limits, and TLS at the edge.
 - Validate real-time audio behavior with headphones and test echo/barge-in scenarios.
 - Measure turn-end-to-first-audio latency, interruption latency, tool timeout behavior,
   and transcript/playback consistency on target hardware.
@@ -50,14 +54,17 @@ project configuration and CLI help for supported extras and model setup.
 ## Tests
 
 The unit tests cover core text chunking, think-tag stripping, turn decisions, playback
-history, and tool timeout/cancellation. They do not validate real microphones,
+history, tool timeout/cancellation, tool argument validation, and HTTP authorization/input
+validation (when API test dependencies are installed). They do not validate real microphones,
 speaker echo cancellation, downloaded model weights, or real-time performance.
 
 ## Deployment
 
 The Dockerfile is intended for the HTTP API path, not a full host microphone/speaker
-runtime. Review dependencies and security before deployment. Do not expose the
-unauthenticated API directly to the public internet.
+runtime. Review dependencies and security before deployment. Non-loopback binds require `JOSIE_API_KEY`; this is not a substitute for TLS or rate
+limits. Arbitrary Python tool execution is disabled by default. Setting
+`JOSIE_ENABLE_PYTHON_TOOL=1` enables it but does not sandbox it. Do not expose the
+service directly to the public internet.
 
 ## License
 

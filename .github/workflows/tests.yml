@@ -2,7 +2,7 @@ name: tests
 
 on:
   push:
-    branches: [main, "import/**"]
+    branches: [main, "import/**", "improve/**"]
   pull_request:
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
       - name: Install test dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install numpy httpx pytest
+          python -m pip install numpy httpx pytest fastapi python-multipart
           python -m pip install --no-deps -e .
       - name: Run unit tests
         run: python -m pytest -q

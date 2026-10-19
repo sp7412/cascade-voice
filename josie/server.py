@@ -113,7 +113,12 @@ def create_app(cfg=None):
 
     @app.post("/v1/audio/speech", dependencies=[Depends(check_auth)])
     async def speech(body: dict):
-        text, fmt = clean_for_tts(body.get("input", "")), body.get("response_format", "pcm")
+        raw_input = body.get("input", "")
+        if not isinstance(raw_input, str):
+            raise HTTPException(status_code=422, detail="input must be a string")
+        text, fmt = clean_for_tts(raw_input), body.get("response_format", "pcm")
+        if not isinstance(fmt, str):
+            raise HTTPException(status_code=422, detail="response_format must be a string")
         if not text:
             return JSONResponse({"error": "empty input"}, status_code=400)
         if len(text) > MAX_SPEECH_CHARS:

@@ -40,8 +40,10 @@ structured error responses, metrics, dependency readiness checks, and per-caller
 
 ## 2.3 Tool execution is a privilege boundary
 
-The built-in Python runner executes code with the privileges of the JOSIE process.
-It is intended for a trusted local prototype only. It must not be enabled in a
+The built-in Python runner is disabled by default. Setting
+`JOSIE_ENABLE_PYTHON_TOOL=1` enables code execution with the privileges of the JOSIE
+process. This opt-in is only a warning gate, not a sandbox; it remains intended for a
+trusted local prototype only. It must not be enabled in a
 multi-user or remotely accessible service without an operating-system sandbox,
 resource limits, filesystem/network policy, and a separate low-privilege identity.
 

@@ -7,7 +7,8 @@ DEMO_SCRIPT = """Suggested 6-minute flow (talk naturally, interrupt whenever you
   1. "What time is it, and what's on my calendar today?"        -> get_time + calendar_today in parallel
   2. "Search for the latest Apple Silicon news and summarize."   -> web_search with spoken preamble
   3. Interrupt mid-answer: "Actually, skip that."                -> barge-in, history cut at what you heard
-  4. "Write a Python script that prints primes under 100, save it as primes.py and run it."  -> write_file + run_python
+  4. "Write a Python script that prints primes under 100 and save it as primes.py." -> write_file
+     (run_python is disabled unless JOSIE_ENABLE_PYTHON_TOOL=1; it is not sandboxed)
   5. "In the background, research three tips for fast TTS and tell me when done." -> spawn_agent, keep chatting
   6. Keep asking small tool questions; after ~100 calls the history still stays bounded."""
 
