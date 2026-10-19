@@ -105,13 +105,13 @@ async def _sh(*cmd, timeout=10):
     )
     try:
         out, _ = await asyncio.wait_for(p.communicate(), timeout)
-    except asyncio.TimeoutError:
+    except (asyncio.TimeoutError, asyncio.CancelledError):
         if os.name == "posix":
             try:
                 os.killpg(p.pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
-        else:
+        elif p.returncode is None:
             p.kill()
         await p.wait()  # Reap the child before returning control.
         raise
