@@ -1,0 +1,18 @@
+[project]
+name = "josie-voice"
+version = "0.1.0"
+description = "Cascaded real-time voice agent: AEC/VAD -> Smart Turn -> ASR -> LLM+tools -> sentence chunker -> TTS, with speculation and barge-in"
+requires-python = ">=3.10"
+dependencies = ["numpy", "onnxruntime", "sounddevice", "soundfile", "httpx", "silero-vad", "faster-whisper", "fastapi", "uvicorn", "python-multipart"]
+
+[project.optional-dependencies]
+mlx = ["mlx", "mlx-audio"]
+kokoro = ["kokoro>=0.9", "torch"]
+speaker = ["torch", "torchaudio"]
+aec = ["speexdsp"]
+search = ["ddgs"]
+smartturn = ["transformers"]
+dev = ["pytest"]
+
+[tool.setuptools]
+packages = ["josie"]
