@@ -102,11 +102,11 @@ def create_app(cfg=None):
             for end in list(range(step, len(audio), step)) + [len(audio)]:
                 text = await ex.run(asr.transcribe, audio[:end])
                 if end == len(audio):
-                    yield f"data: {json.dumps({'type': 'transcript.text.done', 'text': text})}\\n\\n"
+                    yield f"data: {json.dumps({'type': 'transcript.text.done', 'text': text})}\n\n"
                 elif text.startswith(prev) and len(text) > len(prev):
-                    yield f"data: {json.dumps({'type': 'transcript.text.delta', 'delta': text[len(prev):]})}\\n\\n"
+                    yield f"data: {json.dumps({'type': 'transcript.text.delta', 'delta': text[len(prev):]})}\n\n"
                     prev = text
-            yield "data: [DONE]\\n\\n"
+            yield "data: [DONE]\n\n"
 
         return StreamingResponse(gen(), media_type="text/event-stream",
                                  headers={"Cache-Control": "no-cache"})
