@@ -25,6 +25,8 @@ on the target machine.
    concrete acceptance criteria.
 3. [Evaluation and production-readiness plan](03-evaluation.md) — test matrix,
    latency definitions, business outcomes, staged rollout, and promotion gates.
+4. [Operations runbook](04-operations-runbook.md) — safe deployment, incident response,
+   operational checks, and release checklist.
 
 ## Five takeaways
 
