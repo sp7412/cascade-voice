@@ -76,6 +76,7 @@ async def _sh(*cmd, timeout=10):
         out, _ = await asyncio.wait_for(p.communicate(), timeout)
     except asyncio.TimeoutError:
         p.kill()
+        await p.wait()  # Reap the timed-out child before returning control.
         raise
     return out.decode(errors="replace").strip()
 
