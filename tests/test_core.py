@@ -170,3 +170,5 @@ def test_http_api_auth_and_input_validation(monkeypatch):
                        json={"input": "hello", "response_format": "unsupported"}).status_code == 400
     assert client.post("/v1/audio/speech", headers=headers,
                        json={"input": "x" * 20001}).status_code == 413
+    assert client.post("/v1/audio/speech", headers=headers,
+                       json={"input": {"unexpected": "object"}}).status_code == 422
