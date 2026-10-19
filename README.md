@@ -19,7 +19,7 @@ Treat this as an experimental prototype, not a production-ready voice service.
 Model identifiers, optional backend APIs, audio-device behavior, and end-to-end
 latency must be verified on the target hardware before relying on them.
 
-## Development
+## Whitepaper\n\nThe engineering whitepaper is in [`docs/whitepaper/`](docs/whitepaper/README.md). It covers architecture, turn lifecycle, security boundaries, failure diagnosis, evaluation metrics, and production-readiness gates.\n\n## Development
 
 Python 3.10+ is declared by the package. A local install may require platform-specific
 audio and ML dependencies.
